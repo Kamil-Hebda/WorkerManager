@@ -1,4 +1,3 @@
-
 # Prosty System Rozproszonej Kolejki Zadań (WorkerManager)
 
 ## Opis Projektu
@@ -22,15 +21,22 @@ Ten projekt implementuje prosty system rozproszonej kolejki zadań, składający
 
 ## Kompilacja
 
-Aby skompilować projekt, użyj kompilatora `gcc`.
+Aby skompilować projekt, użyj dostarczonego pliku `Makefile`. Makefile automatyzuje proces kompilacji serwera i workera.
 
 ```bash
-# Kompilacja serwera
-gcc server.c -o server 
+# Kompilacja całego projektu (serwer i worker)
+make
 
-# Kompilacja workera
-gcc worker.c -o worker worker.c
+# Kompilacja samego serwera
+make server
+
+# Kompilacja samego workera
+make worker
+
+# Usunięcie skompilowanych plików
+make clean
 ```
+Upewnij się, że masz zainstalowane narzędzie `make` oraz kompilator `gcc`.
 
 ## Uruchamianie
 
@@ -90,10 +96,15 @@ Każdy worker połączy się z serwerem, będzie prosił o zadania, symulował i
 
 ## Kod i Struktura Projektu
 
-Projekt składa się z dwóch plików źródłowych C:
+Projekt jest zorganizowany w następujący sposób:
 
-*   `server.c`: Implementacja serwera kolejki zadań.
-*   `worker.c`: Implementacja klienta pełniącego rolę workera.
+*   **`Makefile`**: Skrypt automatyzujący proces kompilacji i czyszczenia projektu.
+*   **`worker.c`**: Implementacja klienta (workera), który łączy się z serwerem, pobiera i wykonuje zadania.
+*   **`server/`**: Katalog zawierający kod źródłowy serwera.
+    *   **`main_server.c`**: Główny plik serwera, odpowiedzialny za inicjalizację, główną pętlę obsługi zdarzeń (`poll()`) oraz koordynację modułów.
+    *   **`worker_manager.h`** i **`worker_manager.c`**: Moduł zarządzający połączeniami od workerów. Odpowiada za akceptowanie nowych połączeń, obsługę danych przychodzących od workerów, zarządzanie tablicami deskryptorów plików (`pollfd`) i informacji o workerach (`WorkerInfo`), a także za re-kolejkowanie zadań w przypadku rozłączenia workera.
+    *   **`task_manager.h`** i **`task_manager.c`**: Moduł zarządzający pulą zadań. Odpowiada za przechowywanie zadań, ich dodawanie, wyszukiwanie, przydzielanie workerom oraz aktualizację statusów zadań.
+    *   **`common_defs.h`**: Plik nagłówkowy zawierający wspólne definicje (stałe, struktury danych, statusy) używane przez różne moduły serwera oraz potencjalnie przez workera.
 
 **Protokół Aplikacji:**
 
